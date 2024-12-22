@@ -8,6 +8,7 @@ import pro.homedns.filebrowser.callback.BreadCrumbNavigation;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BreadCrumbs extends Div {
@@ -21,7 +22,9 @@ public class BreadCrumbs extends Div {
 
         findPaths(root, itemPath);
 
-        var itr = crumbs.reversed().iterator();
+        Collections.reverse(crumbs);
+
+        var itr = crumbs.iterator();
         while (itr.hasNext()) {
             var path = itr.next();
             add(new Button(path.getFileName().toString(), event -> breadCrumbNavigation.navigate(path)));

@@ -1,0 +1,9 @@
+services:
+  file-browser:
+    build: .
+    image: binarycodes/file-browser:v1
+    container_name: file-browser
+    volumes:
+      - ./application-prod.yml:/app/application-prod.yml
+    ports:
+      - 8080:8080
