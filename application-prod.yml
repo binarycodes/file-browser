@@ -1,0 +1,25 @@
+file-browser:
+  root: /usr/
+
+vaadin:
+  launch-browser: true
+
+logging:
+  level:
+    org:
+      atmosphere: warn
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          file-browser:
+            provider: file-browser
+            client-id: file-browser
+            client-secret: OMAVIHOLEuvn48DzvkuCysW1hYMHvyBt
+            authorization-grant-type: authorization_code
+            scope: openid,profile,email
+        provider:
+          file-browser:
+            issuer-uri: https://keycloak.homedns.pro/realms/homelab
