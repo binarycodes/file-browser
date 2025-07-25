@@ -1,15 +1,15 @@
-FROM debian:bookworm-slim
+FROM eclipse-temurin:21-jre-alpine
 
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH="$JAVA_HOME/bin:$PATH"
+ARG APP_NAME
+ARG APP_VERSION
 
-RUN apt-get update && apt-get install -y --no-install-recommends openjdk-17-jre-headless
-RUN rm -rf /var/lib/apt/lists/*
+RUN test -n "$APP_NAME" || (echo "APP_NAME  not set" && false)
+RUN test -n "$APP_VERSION" || (echo "APP_VERSION  not set" && false)
 
 WORKDIR /app
-
-COPY target/*.jar /app/
+COPY target/${APP_NAME}-${APP_VERSION}.jar /app/
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -jar /app/*.jar"]
+ENV JAR_FILE_PATH="/app/${APP_NAME}-${APP_VERSION}.jar"
+ENTRYPOINT ["sh", "-c", "java -jar ${JAR_FILE_PATH}"]

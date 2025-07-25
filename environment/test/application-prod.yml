@@ -1,14 +1,6 @@
 file-browser:
   root: /usr/
 
-vaadin:
-  launch-browser: true
-
-logging:
-  level:
-    org:
-      atmosphere: warn
-
 spring:
   security:
     oauth2:

@@ -16,10 +16,10 @@ spring:
         registration:
           file-browser:
             provider: file-browser
-            client-id: file-browser
-            client-secret: OMAVIHOLEuvn48DzvkuCysW1hYMHvyBt
+            client-id: my-test-client
+            client-secret: UTRtYkyYN1nbgdPPbBru1FDVsE8ye5JE
             authorization-grant-type: authorization_code
             scope: openid,profile,email
         provider:
           file-browser:
-            issuer-uri: https://keycloak.homedns.pro/realms/homelab
+            issuer-uri: http://localhost:8090/realms/my-test-realm

@@ -1,47 +1,66 @@
-name: Java CI with Maven
+name: create and publish docker container
 
 on:
   workflow_dispatch:
   push:
     branches: [ "main" ]
     tags: [ 'v*.*.*' ] # publish semver tags as releases.
+  workflow_call:
 
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}
+  PROJECT: file-browser
 
 jobs:
   build:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: set up jdk
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: maven
 
       - name: build with maven
-        run: mvn -B package -Pproduction
+        run: mvn clean package --projects ${{ env.PROJECT }} --also-make --batch-mode -Pproduction
 
       - name: extract project version
         id: extract_version
         run: |
-          echo "VERSION=$(mvn -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec)" >> $GITHUB_OUTPUT
+          echo "MAVEN_NAME=$(mvn help:evaluate -Dexpression=project.artifactId --projects ${{ env.PROJECT }} -q -DforceStdout)" >> $GITHUB_OUTPUT
+          echo "MAVEN_VERSION=$(mvn help:evaluate -Dexpression=project.version --projects ${{ env.PROJECT }} -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: login to docker hub
         uses: docker/login-action@v3
         with:
+          registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: extract docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            # set latest tag for default branch
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=raw,value=${{ steps.extract_version.outputs.MAVEN_VERSION }}
 
       - name: build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ env.PROJECT }}
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/file-browser:${{ steps.extract_version.outputs.VERSION }},${{ secrets.DOCKERHUB_USERNAME }}/file-browser:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            APP_VERSION=${{ steps.extract_version.outputs.VERSION }}
+            APP_NAME=${{ steps.extract_version.outputs.MAVEN_NAME }}
+            APP_VERSION=${{ steps.extract_version.outputs.MAVEN_VERSION }}

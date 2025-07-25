@@ -1,6 +1,9 @@
 server:
   port: ${PORT:8080}
 
+vaadin:
+  launch-browser: false
+
 logging:
   level:
     org: error

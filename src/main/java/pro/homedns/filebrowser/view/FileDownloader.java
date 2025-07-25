@@ -1,43 +1,48 @@
 package pro.homedns.filebrowser.view;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.VaadinSession;
-import org.springframework.http.HttpHeaders;
+import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.FileDownloadHandler;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+public final class FileDownloader {
 
-public class FileDownloader {
-
-    public static void downloadFile(Component component, Path path) {
-        var resource = new StreamResource(path.getFileName().toString(), () -> {
-            try {
-                return Files.newInputStream(path);
-            } catch (IOException e) {
-                //TODO: add logging
-                throw new RuntimeException(e);
-            }
-        });
-        downloadFile(component, resource);
+    private FileDownloader() {
+        /* do not instantiate */
     }
 
-    public static void downloadFile(Component component, StreamResource streamResource) {
-        streamResource.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
+    public static void downloadFile(Component component, Path path) {
+        downloadFile(component, createDownloadHandler(path.toFile()));
+    }
+
+    public static void downloadFile(Component component, DownloadHandler downloadHandler) {
+        Objects.requireNonNull(component);
+        Objects.requireNonNull(downloadHandler);
+
         component.getUI()
                 .map(UI::getSession)
                 .map(VaadinSession::getResourceRegistry)
-                .ifPresent(registry -> {
-                    var registration = registry.registerResource(streamResource);
-                    component.addDetachListener(event -> {
-                        if (registration != null) {
-                            registration.unregister();
-                        }
-                    });
-
-                    component.getElement().executeJs("window.location.href = $0", registration.getResourceUri().toString());
+                .ifPresent(rr -> {
+                    final var streamRegistration = rr.registerResource(downloadHandler);
+                    component.addDetachListener(e -> Optional.ofNullable(streamRegistration).ifPresent(StreamRegistration::unregister));
+                    component.getElement().executeJs("window.location.href = $0", streamRegistration.getResourceUri().toString());
                 });
     }
+
+    public static DownloadHandler createDownloadHandler(File file) {
+        return new FileDownloadHandler(file) {
+            @Override
+            public boolean isAllowInert() {
+                return true;
+            }
+        };
+    }
+
 }
