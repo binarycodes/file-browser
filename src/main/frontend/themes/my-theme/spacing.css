@@ -1,0 +1,11 @@
+:root {
+    --vaadin-dashboard-padding: 0;
+}
+
+.gap-none {
+    gap: 0;
+}
+
+.p-none {
+    padding: 0;
+}

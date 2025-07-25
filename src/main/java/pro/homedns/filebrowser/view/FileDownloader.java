@@ -1,5 +1,6 @@
 package pro.homedns.filebrowser.view;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -10,7 +11,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
 import com.vaadin.flow.server.streams.FileDownloadHandler;
+import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 
 public final class FileDownloader {
 
@@ -18,11 +21,11 @@ public final class FileDownloader {
         /* do not instantiate */
     }
 
-    public static void downloadFile(Component component, Path path) {
+    public static void downloadFile(final Component component, final Path path) {
         downloadFile(component, createDownloadHandler(path.toFile()));
     }
 
-    public static void downloadFile(Component component, DownloadHandler downloadHandler) {
+    public static void downloadFile(final Component component, final DownloadHandler downloadHandler) {
         Objects.requireNonNull(component);
         Objects.requireNonNull(downloadHandler);
 
@@ -36,13 +39,28 @@ public final class FileDownloader {
                 });
     }
 
-    public static DownloadHandler createDownloadHandler(File file) {
+    public static DownloadHandler createDownloadHandler(final File file) {
         return new FileDownloadHandler(file) {
             @Override
             public boolean isAllowInert() {
-                return true;
+                return false;
             }
         };
     }
 
+    public static DownloadHandler createDownloadHandler(final String fileName, final byte[] data) {
+        return new InputStreamDownloadHandler(downloadEvent -> {
+            return new DownloadResponse(
+                    new ByteArrayInputStream(data), fileName, null, data.length);
+        }) {
+            @Override
+            public boolean isAllowInert() {
+                return false;
+            }
+        };
+    }
+
+    public static void downloadFile(final Component component, final String fileName, final byte[] result) {
+        downloadFile(component, createDownloadHandler(fileName, result));
+    }
 }

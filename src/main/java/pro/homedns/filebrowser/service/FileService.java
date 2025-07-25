@@ -1,9 +1,5 @@
 package pro.homedns.filebrowser.service;
 
-import org.apache.commons.lang3.SystemUtils;
-import org.springframework.stereotype.Service;
-import pro.homedns.filebrowser.model.FileItem;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,32 +8,36 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.SystemUtils;
+import org.springframework.stereotype.Service;
+import pro.homedns.filebrowser.model.FileItem;
+
+@Log4j2
 @Service
 public class FileService {
 
-    public List<FileItem> getItems(Path path) {
+    public List<FileItem> getItems(final Path path) {
         try {
             return Files.walk(path, 1)
                     .filter(Predicate.not(path::equals))
                     .map(itemPath -> {
                         try {
-                            var isDirectory = Files.isDirectory(itemPath);
-                            var owner = Files.getOwner(itemPath);
-                            var permission = SystemUtils.IS_OS_WINDOWS ? Collections.<PosixFilePermission>emptySet() : Files.getPosixFilePermissions(itemPath);
-                            var lastModifiedOn = Files.getLastModifiedTime(itemPath);
-                            var fileSize = Files.size(itemPath);
+                            final var isDirectory = Files.isDirectory(itemPath);
+                            final var owner = Files.getOwner(itemPath);
+                            final var permission = SystemUtils.IS_OS_WINDOWS ? Collections.<PosixFilePermission>emptySet() : Files.getPosixFilePermissions(itemPath);
+                            final var lastModifiedOn = Files.getLastModifiedTime(itemPath);
+                            final var fileSize = Files.size(itemPath);
 
                             return new FileItem(itemPath, isDirectory, owner, permission, lastModifiedOn, fileSize);
-                        } catch (IOException e) {
-                            //TODO: add logging;
-                            System.out.println(e.getMessage());
+                        } catch (final IOException ex) {
+                            log.fatal(ex.getMessage(), ex);
                         }
                         return null;
                     })
                     .toList();
-        } catch (IOException e) {
-            //TODO: add logging;
-            System.out.println(e.getMessage());
+        } catch (final IOException ex) {
+            log.fatal(ex.getMessage(), ex);
         }
         return Collections.emptyList();
     }
