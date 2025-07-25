@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}
-  PROJECT: file-browser
+  PROJECT_DIRECTORY: .
 
 jobs:
   build:
@@ -27,13 +27,13 @@ jobs:
           cache: maven
 
       - name: build with maven
-        run: mvn clean package --projects ${{ env.PROJECT }} --also-make --batch-mode -Pproduction
+        run: mvn clean package --batch-mode -Pproduction
 
       - name: extract project version
         id: extract_version
         run: |
-          echo "MAVEN_NAME=$(mvn help:evaluate -Dexpression=project.artifactId --projects ${{ env.PROJECT }} -q -DforceStdout)" >> $GITHUB_OUTPUT
-          echo "MAVEN_VERSION=$(mvn help:evaluate -Dexpression=project.version --projects ${{ env.PROJECT }} -q -DforceStdout)" >> $GITHUB_OUTPUT
+          echo "MAVEN_NAME=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_OUTPUT
+          echo "MAVEN_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: login to docker hub
         uses: docker/login-action@v3
@@ -56,7 +56,7 @@ jobs:
       - name: build and push
         uses: docker/build-push-action@v6
         with:
-          context: ${{ env.PROJECT }}
+          context: ${{ env.PROJECT_DIRECTORY }}
           push: true
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
