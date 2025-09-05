@@ -1,15 +1,45 @@
 file-browser:
-  root: C:\Users\sujoy\Documents
+  root: /Users/Sujoy/Projects
 
 vaadin:
   launch-browser: true
 
 logging:
   level:
-    org:
-      atmosphere: warn
+    org: debug
+    com: trace
 
 spring:
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: validate
+        jdbc.batch_size: 100
+        order_inserts: true
+        order_updates: true
+        jdbc:
+          fetch_size: 400
+        format_sql: true
+        generate_statistics: false
+        hbm2ddl:
+          schema-generation:
+            script:
+              append: false
+      jakarta:
+        persistence:
+          schema-generation:
+            create-source: metadata
+          scripts:
+            action: create
+            create-target: hibernate-script.sql
+  datasource:
+    url: jdbc:postgresql://localhost:5432/app_db
+    driverClassName: org.postgresql.Driver
+    username: app_user
+    password: app_user_pw
   security:
     oauth2:
       client:
