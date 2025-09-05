@@ -13,6 +13,7 @@ import renameImage from "@images/icons8-rename-50.png?url";
 import {useNavigate, useParams} from "react-router";
 import BreadCrumbs from "Frontend/components/BreadCrumbs";
 import {formatDate} from "Frontend/util/dateFormat";
+import RenameFileDialog, {itemToRename, renameFileDialogOpenSignal} from "Frontend/components/RenameFileDialog";
 
 
 export const config: ViewConfig = {
@@ -36,8 +37,14 @@ export default function FileBrowserView() {
         navigate("/browser/" + item.path);
     };
 
+    const onRenameFileClick = (item: FileItem) => {
+        renameFileDialogOpenSignal.value = true;
+        itemToRename.value = item;
+    };
+
     return <>
         <BreadCrumbs path={wildcardPath}/>
+        <RenameFileDialog/>
 
         <Grid items={fileItems.value}>
             <GridSortColumn resizable path="displayName" header="Name" renderer={
@@ -72,7 +79,7 @@ export default function FileBrowserView() {
                                 <img src={downloadImage} width="32"/>
                             </Button>
                         </a>
-                        <Button theme="icon tertiary">
+                        <Button theme="icon tertiary" onClick={() => onRenameFileClick(item)}>
                             <img src={renameImage} width="32"/>
                         </Button>
                     </>
