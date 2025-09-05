@@ -6,7 +6,8 @@ vaadin:
 
 logging:
   level:
-    org: error
+    org: trace
+    com: trace
 
 spring:
   profiles:

@@ -10,12 +10,25 @@ import java.util.function.Predicate;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SystemUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pro.homedns.filebrowser.config.ApplicationProperties;
 import pro.homedns.filebrowser.model.FileItem;
 
 @Log4j2
 @Service
 public class FileService {
+
+    private final ApplicationProperties applicationProperties;
+
+    @Autowired
+    public FileService(final ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+    }
+
+    public List<FileItem> getRootLevelItems() {
+        return getItems(applicationProperties.root());
+    }
 
     public List<FileItem> getItems(final Path path) {
         try {
@@ -29,7 +42,7 @@ public class FileService {
                             final var lastModifiedOn = Files.getLastModifiedTime(itemPath);
                             final var fileSize = Files.size(itemPath);
 
-                            return new FileItem(itemPath, isDirectory, owner, permission, lastModifiedOn, fileSize);
+                            return new FileItem(itemPath.toString(), isDirectory, owner, permission, lastModifiedOn, fileSize);
                         } catch (final IOException ex) {
                             log.fatal(ex.getMessage(), ex);
                         }
