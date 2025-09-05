@@ -22,11 +22,18 @@ export default function FileBrowserView() {
             .then(items => fileItems.value = items);
     }, []);
 
+    const visitItem = (item: FileItem) => {
+        if (!item.directory) return;
+
+        FileBrowserService.getPathItems(item.path)
+            .then(items => fileItems.value = items);
+    };
+
     return <>
         <Grid items={fileItems.value}>
             <GridColumn path="displayName" renderer={
                 ({item}) => (
-                    <div className={"flex gap-s items-center"}>
+                    <div className={"flex gap-s items-center"} onClick={() => visitItem(item)}>
                         <Icon src={item.directory ? folderIcon : fileIcon}/>
                         <span>{item.displayName}</span>
                     </div>
