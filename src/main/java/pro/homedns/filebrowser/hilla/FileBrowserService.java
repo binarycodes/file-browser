@@ -33,7 +33,7 @@ public class FileBrowserService {
 
         try {
             return this.fileService.getItems(pathString);
-        } catch (InvalidPathException ex) {
+        } catch (InvalidPathException | SecurityException ex) {
             log.error(ex.getMessage(), ex);
         }
         return Collections.emptyList();

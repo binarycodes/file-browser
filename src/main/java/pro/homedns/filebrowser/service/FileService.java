@@ -32,9 +32,14 @@ public class FileService {
     public List<FileItem> getItems(final String pathString) {
         try {
             final var rootPath = applicationProperties.root();
-            final var path = rootPath.resolve(pathString);
-            return Files.walk(path, 1)
-                    .filter(Predicate.not(path::equals))
+            final var normalizedPath = rootPath.resolve(pathString).normalize();
+
+            if (!normalizedPath.startsWith(rootPath)) {
+                throw new SecurityException("Invalid file path: path traversal attempt detected.");
+            }
+
+            return Files.walk(normalizedPath, 1)
+                    .filter(Predicate.not(normalizedPath::equals))
                     .map(itemPath -> {
                         try {
                             final var isDirectory = Files.isDirectory(itemPath);

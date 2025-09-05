@@ -2,15 +2,15 @@ import {ViewConfig} from "@vaadin/hilla-file-router/types.js";
 import {FileBrowserService} from "Frontend/generated/endpoints";
 import {useSignal} from "@vaadin/hilla-react-signals";
 import FileItem from "Frontend/generated/pro/homedns/filebrowser/model/FileItem";
-import {Grid, GridColumn, Icon} from "@vaadin/react-components";
+import {Grid, GridSortColumn, Icon} from "@vaadin/react-components";
 import {useEffect} from "react";
-import {formatDate} from "Frontend/util/dateFormat";
 
 import folderIcon from "@icons/icons8-folder.svg?url";
 import fileIcon from "@icons/icons8-file.svg?url";
 
 import {useNavigate, useParams} from "react-router";
 import BreadCrumbs from "Frontend/components/BreadCrumbs";
+import {formatDate} from "Frontend/util/dateFormat";
 
 export const config: ViewConfig = {
     title: 'File Browser',
@@ -37,20 +37,26 @@ export default function FileBrowserView() {
         <BreadCrumbs path={wildcardPath}/>
 
         <Grid items={fileItems.value}>
-            <GridColumn path="displayName" renderer={
+            <GridSortColumn path="displayName" header="Name" renderer={
                 ({item}) => (
                     <div className="flex gap-s items-center"
                          onClick={() => visitItem(item)}
                          title={item.path}>
                         <Icon src={item.directory ? folderIcon : fileIcon}/>
-                        <span>{item.displayName}</span>
+                        <span className="text-s text-secondary">{item.displayName}</span>
                     </div>
-                )
-            }/>
-            <GridColumn path="fileSize"/>
-            <GridColumn path="lastModifiedOn" renderer={
-                ({item}) => formatDate(item.lastModifiedOn)
-            }/>
+                )}
+            />
+            <GridSortColumn path="fileSize" header="Size" renderer={
+                ({item}) => (
+                    <span className="text-s text-secondary">{item.fileSize}</span>
+                )}
+            />
+            <GridSortColumn path="lastModifiedOn" header="Last Modified On" renderer={
+                ({item}) => (
+                    <span className="text-s text-secondary">{formatDate(item.lastModifiedOn)}</span>
+                )}
+            />
         </Grid>
     </>;
 }
