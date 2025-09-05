@@ -2,12 +2,13 @@ import {ViewConfig} from "@vaadin/hilla-file-router/types.js";
 import {FileBrowserService} from "Frontend/generated/endpoints";
 import {useSignal} from "@vaadin/hilla-react-signals";
 import FileItem from "Frontend/generated/pro/homedns/filebrowser/model/FileItem";
-import {Grid, GridColumn, GridSortColumn, Icon} from "@vaadin/react-components";
+import {Button, Grid, GridColumn, GridSortColumn, Icon} from "@vaadin/react-components";
 import {useEffect} from "react";
 
 import folderIcon from "@icons/icons8-folder.svg?url";
 import fileIcon from "@icons/icons8-file.svg?url";
 import downloadImage from "@images/icons8-download-from-the-cloud.svg?url";
+import renameImage from "@images/icons8-rename-50.png?url";
 
 import {useNavigate, useParams} from "react-router";
 import BreadCrumbs from "Frontend/components/BreadCrumbs";
@@ -62,12 +63,18 @@ export default function FileBrowserView() {
             <GridColumn resizable frozenToEnd renderer={
                 ({item}) => (
                     <>
-                        {item.directory ?
-                            <></> :
-                            <a href={`/download/${item.path}`} download>
-                                <img src={downloadImage} width="32" alt="Vaadin logo"/>
-                            </a>
-                        }
+                        <a href={item.directory ? "" : `/download/${item.path}`}
+                           download={!item.directory}
+                           aria-disabled={item.directory}
+                           className={item.directory ? 'item-disabled' : ""}>
+                            <Button theme="icon tertiary" disabled={item.directory}
+                                    className={item.directory ? 'item-disabled' : ""}>
+                                <img src={downloadImage} width="32"/>
+                            </Button>
+                        </a>
+                        <Button theme="icon tertiary">
+                            <img src={renameImage} width="32"/>
+                        </Button>
                     </>
                 )}
             />
