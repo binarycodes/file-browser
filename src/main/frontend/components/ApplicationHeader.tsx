@@ -5,7 +5,7 @@ export default function ApplicationHeader() {
     const username = useSignal("");
 
     CurrentUserService.getUserInfo().then(userInfo => {
-        username.value = userInfo.fullName;
+        username.value = userInfo.fullName || '';
         console.log(username.value);
     });
 

@@ -1,5 +1,5 @@
 file-browser:
-  root: C:\Users\sujoy\Documents
+  root: /Users/Sujoy/Projects
 
 vaadin:
   launch-browser: true

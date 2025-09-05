@@ -3,13 +3,12 @@ package pro.homedns.filebrowser.service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.homedns.filebrowser.config.ApplicationProperties;
@@ -37,12 +36,12 @@ public class FileService {
                     .map(itemPath -> {
                         try {
                             final var isDirectory = Files.isDirectory(itemPath);
-                            final var owner = Files.getOwner(itemPath);
-                            final var permission = SystemUtils.IS_OS_WINDOWS ? Collections.<PosixFilePermission>emptySet() : Files.getPosixFilePermissions(itemPath);
                             final var lastModifiedOn = Files.getLastModifiedTime(itemPath);
-                            final var fileSize = Files.size(itemPath);
+                            final var fileSize = FileUtils.byteCountToDisplaySize(Files.size(itemPath));
 
-                            return new FileItem(itemPath.toString(), isDirectory, owner, permission, lastModifiedOn, fileSize);
+                            final var displayName = itemPath.getFileName().toString();
+
+                            return new FileItem(itemPath.toString(), displayName, isDirectory, lastModifiedOn.toInstant(), fileSize);
                         } catch (final IOException ex) {
                             log.fatal(ex.getMessage(), ex);
                         }

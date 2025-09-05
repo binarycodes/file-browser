@@ -1,9 +1,6 @@
 package pro.homedns.filebrowser.model;
 
-import java.nio.file.attribute.FileTime;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.UserPrincipal;
-import java.util.Set;
+import java.time.Instant;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -19,9 +16,8 @@ import lombok.Setter;
 public class FileItem {
     @EqualsAndHashCode.Include
     private String path;
+    private String displayName;
     private boolean isDirectory;
-    private UserPrincipal owner;
-    private Set<PosixFilePermission> permission;
-    private FileTime lastModifiedOn;
-    private Long fileSize;
+    private Instant lastModifiedOn;
+    private String fileSize;
 }
