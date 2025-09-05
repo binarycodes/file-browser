@@ -24,7 +24,7 @@ export default function BreadCrumbs({path}: BreadcrumbProps) {
     const breadcrumbNavigateRoot = () => navigate("/browser");
 
     return <>
-        <div className="flex flex-row items-start gap-s pb-m">
+        <div className="flex flex-row flex-wrap items-start gap-s pb-m">
             <span className="breadcrumb" title="/">
                 <Icon src={folderIcon} onClick={() => breadcrumbNavigateRoot()}/>
                 <span className="ml-s text-secondary">/</span>

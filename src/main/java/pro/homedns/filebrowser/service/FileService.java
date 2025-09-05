@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.homedns.filebrowser.config.ApplicationProperties;
+import pro.homedns.filebrowser.model.FileDownloadData;
 import pro.homedns.filebrowser.model.FileItem;
 
 @Log4j2
@@ -60,5 +61,23 @@ public class FileService {
             log.fatal(ex.getMessage(), ex);
         }
         return Collections.emptyList();
+    }
+
+    public FileDownloadData downloadFile(String pathString) throws IOException {
+        final var rootPath = applicationProperties.root();
+        final var normalizedPath = rootPath.resolve(pathString).normalize();
+
+        if (!normalizedPath.startsWith(rootPath)) {
+            throw new SecurityException("Invalid file path: path traversal attempt detected.");
+        }
+
+        if (normalizedPath.toFile().isDirectory()) {
+            throw new IllegalArgumentException("Invalid file path: directory download not supported.");
+        }
+
+        final var content = Files.readAllBytes(normalizedPath);
+        final var name = normalizedPath.getFileName().toString();
+
+        return new FileDownloadData(name, content);
     }
 }

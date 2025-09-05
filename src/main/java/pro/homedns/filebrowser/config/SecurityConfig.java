@@ -40,6 +40,9 @@ public class SecurityConfig extends VaadinWebSecurity {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.oauth2Login(Customizer.withDefaults());
+
+        http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/download/**").authenticated());
+
         super.configure(http);
     }
 
