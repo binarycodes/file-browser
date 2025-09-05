@@ -1,10 +1,10 @@
 package pro.homedns.filebrowser.hilla;
 
 import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.log4j.Log4j2;
 import org.jspecify.annotations.NonNull;
@@ -26,14 +26,13 @@ public class FileBrowserService {
         this.fileService = fileService;
     }
 
-    public @NonNull List<@NonNull FileItem> getRootLevelItems() {
-        return this.fileService.getRootLevelItems();
-    }
-
     public @NonNull List<@NonNull FileItem> getPathItems(String pathString) {
+        if (StringUtils.isEmpty(pathString)) {
+            return this.fileService.getRootLevelItems();
+        }
+
         try {
-            var path = Path.of(pathString);
-            return this.fileService.getItems(path);
+            return this.fileService.getItems(pathString);
         } catch (InvalidPathException ex) {
             log.error(ex.getMessage(), ex);
         }

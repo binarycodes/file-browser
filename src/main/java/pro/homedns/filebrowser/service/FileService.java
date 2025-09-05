@@ -2,13 +2,13 @@ package pro.homedns.filebrowser.service;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.homedns.filebrowser.config.ApplicationProperties;
@@ -26,11 +26,13 @@ public class FileService {
     }
 
     public List<FileItem> getRootLevelItems() {
-        return getItems(applicationProperties.root());
+        return getItems(StringUtils.EMPTY);
     }
 
-    public List<FileItem> getItems(final Path path) {
+    public List<FileItem> getItems(final String pathString) {
         try {
+            final var rootPath = applicationProperties.root();
+            final var path = rootPath.resolve(pathString);
             return Files.walk(path, 1)
                     .filter(Predicate.not(path::equals))
                     .map(itemPath -> {
@@ -40,8 +42,9 @@ public class FileService {
                             final var fileSize = FileUtils.byteCountToDisplaySize(Files.size(itemPath));
 
                             final var displayName = itemPath.getFileName().toString();
+                            var relativePath = rootPath.relativize(itemPath).toString();
 
-                            return new FileItem(itemPath.toString(), displayName, isDirectory, lastModifiedOn.toInstant(), fileSize);
+                            return new FileItem(relativePath, displayName, isDirectory, lastModifiedOn.toInstant(), fileSize);
                         } catch (final IOException ex) {
                             log.fatal(ex.getMessage(), ex);
                         }

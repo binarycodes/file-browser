@@ -20,8 +20,9 @@ export default function MainLayout() {
                 <Outlet/>
             </main>
 
-            <footer className="flex flex-col w-full flex-grow-0 p-m bg-shade-30 text-right">
-                <span>built with Hilla</span>
+            <footer className="flex flex-col w-full flex-grow-0 p-m bg-shade-30 text-center text-xs">
+                <span>built with <a href="https://vaadin.com/hilla">Hilla</a>, Icons by <a
+                    href="https://icons8.com/">Icons8</a></span>
             </footer>
         </div>
     );
